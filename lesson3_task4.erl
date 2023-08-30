@@ -80,6 +80,8 @@ decodeNest(<<"{", T/binary>>, [{waitValue, _ }| Tail], Result)->
     decodeNest(T, [{object, []} | Tail], Result);
 decodeNest(<<"[", T/binary>>, [{waitValue, _ }| Tail]=_State, Result)->
     decodeNest(T, [{waitValue, <<>>},{array, []} | Tail], Result);
+decodeNest(<<"-", T/binary>>, [{waitValue, _ }| Tail], Result)->
+    decodeNest(T, [{valueNumber, <<"-">>, integer} | Tail], Result);
 decodeNest(<<Symbol/utf8, T/binary>>, [{waitValue, _ }| Tail], Result) when Symbol >= 48 andalso Symbol < 58 ->
     decodeNest(T, [{valueNumber, <<Symbol/utf8>>, integer} | Tail], Result);
 
@@ -126,7 +128,7 @@ getTestJson()->
 {
 'squadName': 'Super hero squad',
 'homeTown': 'Metro City',
-'formed': 2016,
+'formed': -2016,
 'secretBase': 'Super tower',
 'active': true,
 'members': [
