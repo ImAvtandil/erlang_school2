@@ -1,8 +1,10 @@
 -module(lesson3_task4).
+
 -export([decode/2, getTestJson/0]).
 
 decode(Json, Type)-> 
     decodeNest(Json, Type).
+
 decodeNest(Json, map)->
     decodeNest(Json, [start], map);
 decodeNest(Json, proplist)->
@@ -18,55 +20,39 @@ decodeNest(<<"{", T/binary>>, [start|_] = _State, Result)->
 
 decodeNest(<<"[", T/binary>>, [start|_] = _State, Result)->
     decodeNest(T, [{array, []}], Result);
-
 % ----------------------------------------OBJECT------------------------------
 decodeNest(<<":", T/binary>>, [{object, _ }|_]=State, Result)->
     decodeNest(T, [{waitValue, <<>>} | State], Result);
-
 decodeNest(<<"}", T/binary>>, [{object, Res } |[]]=State, map)->
     decodeNest(T, State, Res);
-
 decodeNest(<<"}", T/binary>>, [{object, Res } |[]]=State, _Result)->
     decodeNest(T, State, lesson3_task2:reverse(Res));
-
 decodeNest(<<"}", T/binary>>, [{object, Res}, {object, [{Key}|Object]} | Tail]=_State, map)->
     decodeNest(T, [{object, maps:put(Key, Res, Object)} | Tail], map);
-
 decodeNest(<<"}", T/binary>>, [{object, Res}, {object, [{Key}|Object]} | Tail]=_State, Result)->
     decodeNest(T, [{object, [{Key, lesson3_task2:reverse(Res)}|Object]} | Tail], Result);
-
 decodeNest(<<"}", T/binary>>, [{object, Res}, {array, Array} | Tail]=_State, map)->
     decodeNest(T,  [{array, [Res| Array]}|Tail], map);
-
 decodeNest(<<"}", T/binary>>, [{object, Res}, {array, Array} | Tail]=_State, Result)->
     decodeNest(T,  [{array, [lesson3_task2:reverse(Res)| Array]}|Tail], Result);
-
 % ----------------------------------------ARRAY------------------------------
 decodeNest(<<",", T/binary>>, [{array, _ }|_]=State, Result)->
     decodeNest(T, [{waitValue, <<>>} | State], Result);
-
 decodeNest(<<"]", T/binary>>, [{array, Res } |[]]=State, _Result)->
     decodeNest(T, State, Res);
-
 decodeNest(<<"]", T/binary>>, [{array, Res}, {object, [{Key}|Object]} | Tail]=_State, map)->
     decodeNest(T, [{object, maps:put(Key, Res, Object)} | Tail], map);
-
 decodeNest(<<"]", T/binary>>, [{array, Res}, {object, [{Key}|Object]} | Tail]=_State, Result)->
     decodeNest(T, [{object, [{Key, lesson3_task2:reverse(Res)}|Object]} | Tail], Result);
-
 decodeNest(<<"]", T/binary>>, [{array, Res}, {array, Array} | Tail]=_State, Result)->
     decodeNest(T, [{array, [ lesson3_task2:reverse(Res)| Array]}|Tail], Result);
-
 % -------------------------------------KEY------------------------------------
 decodeNest(<<"'", T/binary>>, [{object, _ }|_]=State, Result)->
     decodeNest(T, [{key, <<>>} | State], Result);
-
 decodeNest(<<"'", T/binary>>, [{key, Name}, {object, Val}|Tail], Result)->
     decodeNest(T, [{object, [{Name} | Val]} | Tail], Result);
-
 decodeNest(<<Symbol/utf8, T/binary>>, [{key, Name}| Tail], Result)->
     decodeNest(T, [ {key, <<Name/binary, Symbol/utf8>>} | Tail], Result);
-
 %------------------------------------Value---------------------------------------
 decodeNest(<<"'", T/binary>>, [{waitValue, _ }| Tail] = _State, Result)->
     decodeNest(T, [{value, <<>>} | Tail], Result);
@@ -84,42 +70,33 @@ decodeNest(<<"-", T/binary>>, [{waitValue, _ }| Tail], Result)->
     decodeNest(T, [{valueNumber, <<"-">>, integer} | Tail], Result);
 decodeNest(<<Symbol/utf8, T/binary>>, [{waitValue, _ }| Tail], Result) when Symbol >= 48 andalso Symbol < 58 ->
     decodeNest(T, [{valueNumber, <<Symbol/utf8>>, integer} | Tail], Result);
-
 decodeNest(<<"true", T/binary>>, [{array, Array} | Tail]=_State, Result)->
     decodeNest(T, [{array, [true | Array]}|Tail], Result);
 decodeNest(<<"false", T/binary>>, [{array, Array} | Tail]=_State, Result)->
     decodeNest(T, [{array, [false | Array]}|Tail], Result);
-
 decodeNest(<<"'", T/binary>>, [{value, Value}, {array, Array} | Tail]=_State, Result)->
     decodeNest(T, [{array, [Value | Array]}|Tail], Result);
-
 decodeNest(<<"'", T/binary>>, [{value, Value}, {object, [{Key}|Object]} | Tail]=_State, map)->
     decodeNest(T, [{object, maps:put(Key, Value, Object)} | Tail], map);
-
 decodeNest(<<"'", T/binary>>, [{value, Value}, {object, [{Key}|Object]} | Tail]=_State, Result)->
     decodeNest(T, [{object, [{Key, Value}|Object]} | Tail], Result);
-
 decodeNest(<<Symbol/utf8, T/binary>>, [{valueNumber, Value, Type} | Tail], Result) when Symbol >= 48 andalso Symbol < 58->
     decodeNest(T, [{valueNumber, <<Value/binary, Symbol/utf8>>, Type} | Tail], Result);
 decodeNest(<<Symbol/utf8, T/binary>>, [{valueNumber, Value, _Type} | Tail], Result) when Symbol =:= 46 ->
     decodeNest(T, [{valueNumber, <<Value/binary, Symbol/utf8>>, float} | Tail], Result);
-
 decodeNest(<<Symbol/utf8, T/binary>>, [{value, Value} | Tail], Result)->
     decodeNest(T, [{value, <<Value/binary, Symbol/utf8>>} | Tail], Result);
-
 decodeNest(<<Symbol/utf8, T/binary>>, [{valueNumber, Value, Type} | Tail], Result)->
     ValueFormated = case Type of 
                         float->binary_to_float(Value);
                         _->binary_to_integer(Value)
                     end,
     decodeNest(<<"'",Symbol/utf8,T/binary>>, [{value, ValueFormated} | Tail], Result);
-
 % --------------------------------------OTHER-----------------------------------------------------
 decodeNest(<<_/utf8, T/binary>>, State, Result)->
     decodeNest(T, State, Result);
 % --------------------------------------FINISH---------------------------------------------------
 decodeNest(<<>>,_State, Result)->
-    % io:format(user, "42 STATEEND ~p~n", [State]),
     Result.
 
 

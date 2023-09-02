@@ -1,6 +1,6 @@
 -module(lesson3_task3).
--export([split/2]).
 
+-export([split/2]).
 
 split(String, Delimiter)->
     DelimiterBin = erlang:list_to_bitstring(Delimiter),

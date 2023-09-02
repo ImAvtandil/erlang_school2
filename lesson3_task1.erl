@@ -1,6 +1,6 @@
 -module(lesson3_task1).
--export([first_word/1]).
 
+-export([first_word/1]).
 
 first_word(Bitstring)->
     first_word(Bitstring, <<>>).
