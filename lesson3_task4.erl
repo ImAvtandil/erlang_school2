@@ -17,7 +17,6 @@ decodeNest(<<"{", T/binary>>, [start|_] = _State, map)->
     decodeNest(T, [{object, #{}}], map);
 decodeNest(<<"{", T/binary>>, [start|_] = _State, Result)->
     decodeNest(T, [{object, []}], Result);
-
 decodeNest(<<"[", T/binary>>, [start|_] = _State, Result)->
     decodeNest(T, [{array, []}], Result);
 % ----------------------------------------OBJECT------------------------------
@@ -98,7 +97,6 @@ decodeNest(<<_/utf8, T/binary>>, State, Result)->
 % --------------------------------------FINISH---------------------------------------------------
 decodeNest(<<>>,_State, Result)->
     Result.
-
 
 getTestJson()->
     <<"
