@@ -19,7 +19,11 @@ decodeNest(<<"{", T/binary>>, [start | _] = _State, map) ->
     decodeNest(T, [{object, #{}}], map);
 decodeNest(<<"{", T/binary>>, [start | _] = _State, Result) ->
     decodeNest(T, [{object, []}], Result);
+<<<<<<< HEAD
 decodeNest(<<"[", T/binary>>, [start | _] = _State, Result) ->
+=======
+decodeNest(<<"[", T/binary>>, [start|_] = _State, Result)->
+>>>>>>> ae32d8a6b8c8f6b88d39a091017aedc57ed6572b
     decodeNest(T, [{array, []}], Result);
 % ----------------------------------------OBJECT------------------------------
 decodeNest(<<":", T/binary>>, [{object, _} | _] = State, Result) ->
@@ -118,7 +122,11 @@ decodeNest(<<_/utf8, T/binary>>, State, Result) ->
 decodeNest(<<>>, _State, Result) ->
     Result.
 
+<<<<<<< HEAD
 getTestJson() ->
+=======
+getTestJson()->
+>>>>>>> ae32d8a6b8c8f6b88d39a091017aedc57ed6572b
     <<"
 {
 'squadName': 'Super hero squad',
