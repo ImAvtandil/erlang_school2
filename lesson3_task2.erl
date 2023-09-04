@@ -2,20 +2,20 @@
 
 -export([words/1, reverse/1]).
 
-words(String)->
+words(String) ->
     reverse(words(String, <<>>, [])).
 
-words(<<S/utf8, 32, T/binary>>, AccBin, Acc)->
+words(<<S/utf8, 32, T/binary>>, AccBin, Acc) ->
     words(T, <<>>, [<<AccBin/binary, S>> | Acc]);
-words(<<S/utf8, T/binary>>, AccBin, Acc)->
+words(<<S/utf8, T/binary>>, AccBin, Acc) ->
     words(T, <<AccBin/binary, S>>, Acc);
-words(<<>>, AccBin, Acc)->
+words(<<>>, AccBin, Acc) ->
     [AccBin | Acc].
 
-reverse(List)->
-    reverse(List,[]).
+reverse(List) ->
+    reverse(List, []).
 
-reverse([H|T], Acc)->
-    reverse(T, [H|Acc]);
-reverse([], Acc)->
+reverse([H | T], Acc) ->
+    reverse(T, [H | Acc]);
+reverse([], Acc) ->
     Acc.
