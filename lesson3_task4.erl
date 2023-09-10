@@ -11,8 +11,7 @@ decodeNest(Json, proplist) ->
     decodeNest(Json, [start], proplist);
 decodeNest(_, Type) ->
     throw(lists:flatten(
-              io_lib:format(<<"No case clause matching: ~p. Try to use map or proplist">>,
-                            [Type]))).
+              io_lib:format(<<"No case clause matching: ~p. Try to use map or proplist">>, [Type]))).
 
 % ----------------------------------------START------------------------------
 decodeNest(<<"{", T/binary>>, [start | _] = _State, map) ->
@@ -40,9 +39,9 @@ decodeNest(<<"}", T/binary>>, [{object, Res}, {array, Array} | Tail] = _State, R
 decodeNest(<<",", T/binary>>, [{array, _} | _] = State, Result) ->
     decodeNest(T, [{waitValue, <<>>} | State], Result);
 decodeNest(<<"]", T/binary>>, [{array, Res}] = State, _Result) ->
-    decodeNest(T, State, Res);
+    decodeNest(T, State, lesson3_task2:reverse(Res));
 decodeNest(<<"]", T/binary>>, [{array, Res}, {object, [{Key} | Object]} | Tail] = _State, map) ->
-    decodeNest(T, [{object, maps:put(Key, Res, Object)} | Tail], map);
+    decodeNest(T, [{object, maps:put(Key, lesson3_task2:reverse(Res), Object)} | Tail], map);
 decodeNest(<<"]", T/binary>>, [{array, Res}, {object, [{Key} | Object]} | Tail] = _State, Result) ->
     decodeNest(T, [{object, [{Key, lesson3_task2:reverse(Res)} | Object]} | Tail], Result);
 decodeNest(<<"]", T/binary>>, [{array, Res}, {array, Array} | Tail] = _State, Result) ->
@@ -103,7 +102,7 @@ decodeNest(<<_/utf8, T/binary>>, State, Result) ->
 decodeNest(<<>>, _State, Result) ->
     Result.
 
-getTestJson()->
+getTestJson() ->
     <<"
 {
 'squadName': 'Super hero squad',
