@@ -46,6 +46,12 @@ decodeNest(<<"]", T/binary>>, [{array, Res}, {object, [{Key} | Object]} | Tail] 
     decodeNest(T, [{object, [{Key, lesson3_task2:reverse(Res)} | Object]} | Tail], Result);
 decodeNest(<<"]", T/binary>>, [{array, Res}, {array, Array} | Tail] = _State, Result) ->
     decodeNest(T, [{array, [lesson3_task2:reverse(Res) | Array]} | Tail], Result);
+decodeNest(<<"]", T/binary>>, [{waitValue, <<>>}, _, {object, [{Key} | Object]} | Tail] = _State, map) ->
+    decodeNest(T, [{object, maps:put(Key, [], Object)} | Tail], map);
+decodeNest(<<"]", T/binary>>, [{waitValue, <<>>}, _, {object, [{Key} | Object]} | Tail] = _State, Result) ->
+    decodeNest(T, [{object, [{Key, []} | Object]} | Tail], Result);
+decodeNest(<<"]", T/binary>>, [{waitValue, <<>>}, _, {array, Array} | Tail] = _State, Result) ->
+    decodeNest(T, [{array, [[] | Array]} | Tail], Result);
 % -------------------------------------KEY------------------------------------
 decodeNest(<<"'", T/binary>>, [{object, _} | _] = State, Result) ->
     decodeNest(T, [{key, <<>>} | State], Result);
@@ -65,6 +71,7 @@ decodeNest(<<"{", T/binary>>, [{waitValue, _} | Tail], map) ->
 decodeNest(<<"{", T/binary>>, [{waitValue, _} | Tail], Result) ->
     decodeNest(T, [{object, []} | Tail], Result);
 decodeNest(<<"[", T/binary>>, [{waitValue, _} | Tail] = _State, Result) ->
+    % -----
     decodeNest(T, [{waitValue, <<>>}, {array, []} | Tail], Result);
 decodeNest(<<"-", T/binary>>, [{waitValue, _} | Tail], Result) ->
     decodeNest(T, [{valueNumber, <<"-">>, integer} | Tail], Result);
