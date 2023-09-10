@@ -71,7 +71,6 @@ decodeNest(<<"{", T/binary>>, [{waitValue, _} | Tail], map) ->
 decodeNest(<<"{", T/binary>>, [{waitValue, _} | Tail], Result) ->
     decodeNest(T, [{object, []} | Tail], Result);
 decodeNest(<<"[", T/binary>>, [{waitValue, _} | Tail] = _State, Result) ->
-    % -----
     decodeNest(T, [{waitValue, <<>>}, {array, []} | Tail], Result);
 decodeNest(<<"-", T/binary>>, [{waitValue, _} | Tail], Result) ->
     decodeNest(T, [{valueNumber, <<"-">>, integer} | Tail], Result);
