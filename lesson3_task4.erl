@@ -68,8 +68,12 @@ decodeNest(<<"[", T/binary>>, [{waitValue, _} | Tail] = _State, Result) ->
     decodeNest(T, [{waitValue, <<>>}, {array, []} | Tail], Result);
 decodeNest(<<"-", T/binary>>, [{waitValue, _} | Tail], Result) ->
     decodeNest(T, [{valueNumber, <<"-">>, integer} | Tail], Result);
+decodeNest(<<"-", T/binary>>, [{array, _} | _] = State, Result) ->
+    decodeNest(T, [{valueNumber, <<"-">>, integer} | State], Result);
 decodeNest(<<Symbol/utf8, T/binary>>, [{waitValue, _} | Tail], Result) when Symbol >= 48 andalso Symbol < 58 ->
     decodeNest(T, [{valueNumber, <<Symbol/utf8>>, integer} | Tail], Result);
+decodeNest(<<Symbol/utf8, T/binary>>, [{array, _} | _] = State, Result) when Symbol >= 48 andalso Symbol < 58 ->
+    decodeNest(T, [{valueNumber, <<Symbol/utf8>>, integer} | State], Result);
 decodeNest(<<"true", T/binary>>, [{array, Array} | Tail] = _State, Result) ->
     decodeNest(T, [{array, [true | Array]} | Tail], Result);
 decodeNest(<<"false", T/binary>>, [{array, Array} | Tail] = _State, Result) ->
